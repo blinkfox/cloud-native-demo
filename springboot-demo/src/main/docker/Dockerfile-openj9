@@ -1,0 +1,15 @@
+#----------------------------------------------------------------------
+#-- 描述: 这是用来构建本服务 OpenJ9 虚拟机镜像的 Dockerfile 文件.
+#-- 作者: chenjiayin
+#-- 日期: 2022-09-04
+#-- 构建: docker build -t blinkfox/springboot-demo:openj9 -f src/main/docker/Dockerfile-openj9 .
+#-- 运行: docker run -d -p 7071:7070 --name=springboot-demo-openj9 blinkfox/springboot-demo:openj9
+#----------------------------------------------------------------------
+
+FROM ibm-semeru-runtimes:open-17-jre
+
+COPY target/springboot-demo.jar /springboot-demo.jar
+
+EXPOSE 7070
+
+ENTRYPOINT java -jar /springboot-demo.jar

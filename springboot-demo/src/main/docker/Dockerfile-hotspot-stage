@@ -1,0 +1,34 @@
+#----------------------------------------------------------------------
+#-- 描述: 这是用来多阶段构建 springboot-demo 镜像的 Dockerfile 文件.
+#-- 作者: blinkfox
+#-- 日期: 2022-09-04
+#-- 构建: docker build -t blinkfox/springboot-demo:hotspot-stage -f src/main/docker/Dockerfile-hotspot-stage .
+#-- 运行: docker run -d -p 7074:7070 --name=springboot-demo-stage blinkfox/springboot-demo:hotspot-stage
+#----------------------------------------------------------------------
+
+# ------------------ 进行 Maven 构建和打包，然后分析模块依赖进行 jlink 定制 JRE. ------------------
+FROM blinkfox/maven-jdk17-slim-arm64 as builder
+WORKDIR /app
+
+COPY ../../../pom.xml pom.xml
+COPY ../../../src     src
+
+# 打包、分析依赖模块，并用 jlink 定制 jre
+RUN --mount=type=cache,target=/var/cache/maven_repo mvn -e -B clean package -D maven.test.skip=true \
+    && jar xf target/springboot-demo.jar \
+    && jdeps --multi-release 17 --print-module-deps --class-path="BOOT-INF/lib/*" \
+        --ignore-missing-deps target/springboot-demo.jar > jre-deps.info \
+    && cat jre-deps.info \
+    && jlink --compress 2 --no-header-files --no-man-pages --add-modules $(awk 'END {print}' jre-deps.info) --output ./jre
+
+# ----------------------------------- 进行运行时阶段的构建. -----------------------------------
+FROM blinkfox/debian-stretch-slim-arm64
+
+# 复制运行时的 jre 和 jar.
+COPY --from=builder /app/jre /jre
+COPY --from=builder /app/target/springboot-demo.jar /springboot-demo.jar
+
+# 暴露的端口.
+EXPOSE 7070
+
+ENTRYPOINT /jre/bin/java -jar /springboot-demo.jar
