@@ -1,0 +1,15 @@
+#----------------------------------------------------------------------
+#-- 描述: 这是用来构建本服务 HotSpot 虚拟机镜像的 Dockerfile 文件.
+#-- 作者: chenjiayin
+#-- 日期: 2022-09-04
+#-- 构建: docker build -t blinkfox/springboot-native-demo:jvm -f src/main/docker/Dockerfile-jvm .
+#-- 运行: docker run -d -p 6061:6060 --name=springboot-native-demo-jvm blinkfox/springboot-native-demo:jvm
+#----------------------------------------------------------------------
+
+FROM eclipse-temurin:17-jre
+
+COPY target/springboot-native-demo.jar /springboot-native-demo.jar
+
+EXPOSE 6060
+
+ENTRYPOINT java -jar /springboot-native-demo.jar
