@@ -1,0 +1,15 @@
+#----------------------------------------------------------------------
+#-- 描述: 这是用来构建本服务 HotSpot 虚拟机镜像的 Dockerfile 文件.
+#-- 作者: chenjiayin
+#-- 日期: 2022-09-05
+#-- 构建: docker build -t blinkfox/quarkus-demo:jvm -f src/main/docker/Dockerfile-jvm .
+#-- 运行: docker run -d -p 5051:5050 --name=quarkus-demo-jvm blinkfox/quarkus-demo:jvm
+#----------------------------------------------------------------------
+
+FROM eclipse-temurin:17-jre
+
+COPY target/quarkus-demo-runner.jar /quarkus-demo.jar
+
+EXPOSE 5050
+
+ENTRYPOINT java -jar /quarkus-demo.jar

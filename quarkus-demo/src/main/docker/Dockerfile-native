@@ -1,17 +1,17 @@
 #----------------------------------------------------------------------
-#-- 描述: 这是用来多阶段构建 springboot-native-demo 镜像的 Dockerfile 文件.
+#-- 描述: 这是用来多阶段构建 quarkus-demo 镜像的 Dockerfile 文件.
 #-- 作者: blinkfox
-#-- 日期: 2022-09-04
-#-- 构建: docker build -t blinkfox/springboot-native-demo:native -f src/main/docker/Dockerfile-native .
-#-- 运行: docker run -d -p 6062:6060 --name=springboot-native-demo-native blinkfox/springboot-native-demo:native
+#-- 日期: 2022-09-05
+#-- 构建: docker build -t blinkfox/quarkus-demo:native -f src/main/docker/Dockerfile-native .
+#-- 运行: docker run -d -p 5052:5050 --name=quarkus-demo-native blinkfox/quarkus-demo:native
 #----------------------------------------------------------------------
 
 # ------------------ 进行 Maven 构建和打包，然后分析模块依赖进行 jlink 定制 JRE. ------------------
 FROM blinkfox/graalvm-native-maven-arm64 as builder
 WORKDIR /app
 
-COPY ../../../pom.xml pom.xml
-COPY ../../../src     src
+COPY ./pom.xml pom.xml
+COPY ./src     src
 
 # 打包为原生二进制文件.
 RUN --mount=type=cache,target=/var/cache/maven_repo source /etc/profile.d/mvn-env.sh \
@@ -21,9 +21,9 @@ RUN --mount=type=cache,target=/var/cache/maven_repo source /etc/profile.d/mvn-en
 FROM blinkfox/debian-stretch-slim-arm64
 
 # 复制运行时的 jre 和 jar.
-COPY --from=builder /app/target/springboot-native-demo /springboot-native-demo
+COPY --from=builder /app/target/quarkus-demo-runner /quarkus-demo
 
 # 暴露的端口.
-EXPOSE 6060
+EXPOSE 5050
 
-ENTRYPOINT /springboot-native-demo
+ENTRYPOINT /quarkus-demo
