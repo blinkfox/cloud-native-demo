@@ -6,7 +6,7 @@
 #-- 运行: docker run -d -p 7070:7070 --name=springboot-demo-hotspot blinkfox/springboot-demo:hotspot
 #----------------------------------------------------------------------
 
-FROM openjdk:17.0.2-slim
+FROM eclipse-temurin:17-jre
 
 COPY target/springboot-demo.jar /springboot-demo.jar
 
